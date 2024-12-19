@@ -14,6 +14,7 @@
 
 package net.starlark.java.syntax;
 
+import com.google.common.base.Ascii;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
@@ -68,7 +69,7 @@ public final class Resolver extends NodeVisitor {
 
     @Override
     public String toString() {
-      return super.toString().toLowerCase();
+      return Ascii.toLowerCase(super.toString());
     }
   }
 
@@ -275,6 +276,16 @@ public final class Resolver extends NodeVisitor {
      */
     public int numKeywordOnlyParams() {
       return numKeywordOnlyParams;
+    }
+
+    /** Returns the number of non-residual parameters. */
+    public int getNumNonResidualParameters() {
+      return params.size() - (hasKwargs ? 1 : 0) - (hasVarargs ? 1 : 0);
+    }
+
+    /** Returns the number of ordinary (non-residual, non-keyword-only) parameters. */
+    public int getNumOrdinaryParameters() {
+      return params.size() - (hasKwargs ? 1 : 0) - (hasVarargs ? 1 : 0) - numKeywordOnlyParams;
     }
 
     /** Returns the names of the parameters. Order is as for {@link #getParameters}. */

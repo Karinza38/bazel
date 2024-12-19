@@ -602,9 +602,10 @@ public class StarlarkRuleClassFunctions implements StarlarkRuleFunctionsApi {
   /**
    * Returns a new callable representing a Starlark-defined rule.
    *
-   * <p>This is public for the benefit of {@link StarlarkTestingModule}, which has the unusual use
-   * case of creating new rule types to house analysis-time test assertions ({@code analysis_test}).
-   * It's probably not a good idea to add new callers of this method.
+   * <p>This is public for the benefit of {@link
+   * com.google.devtools.build.lib.rules.test.StarlarkTestingModule}, which has the unusual use case
+   * of creating new rule types to house analysis-time test assertions ({@code analysis_test}). It's
+   * probably not a good idea to add new callers of this method.
    *
    * <p>Note that the bzlFile and transitiveDigest params correspond to the outermost .bzl file
    * being evaluated, not the one in which rule() is called.
@@ -791,6 +792,13 @@ public class StarlarkRuleClassFunctions implements StarlarkRuleFunctionsApi {
 
       Attribute attr = descriptor.build(name);
       boolean isDependency = attr.getType().getLabelClass() == LabelClass.DEPENDENCY;
+
+      if (dependencyResolutionRule && attr.isMaterializing()) {
+        throw Starlark.errorf(
+            "attribute '%s' has a materializer which is not allowed on rules for dependency"
+                + " resolution",
+            name);
+      }
 
       if (dependencyResolutionRule && isDependency) {
         if (!attr.isForDependencyResolution() && attr.forDependencyResolutionExplicitlySet()) {
@@ -1982,7 +1990,6 @@ public class StarlarkRuleClassFunctions implements StarlarkRuleFunctionsApi {
     return ExecGroup.builder()
         .toolchainTypes(toolchainTypes)
         .execCompatibleWith(constraints)
-        .copyFrom(null)
         .build();
   }
 

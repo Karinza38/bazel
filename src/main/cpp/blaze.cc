@@ -472,6 +472,13 @@ static vector<string> GetServerExeArgs(const blaze_util::Path &jvm_path,
   result.push_back("--install_base=" +
                    startup_options.install_base.AsCommandLineArgument());
   result.push_back("--install_md5=" + install_md5);
+  if (startup_options.lock_install_base) {
+    // This flag is not user-settable. Its sole purpose is to alter the behavior
+    // for Blaze and Bazel. Do *not* explicitly set it to disabled, because at
+    // Google we rely on the ability to run the client code against a server
+    // built before the flag was added.
+    result.push_back("--lock_install_base");
+  }
   result.push_back("--output_base=" +
                    startup_options.output_base.AsCommandLineArgument());
   result.push_back("--workspace_directory=" +
@@ -1500,8 +1507,6 @@ int Main(int argc, const char *const *argv, WorkspaceLayout *workspace_layout,
       new blaze_util::BazelLogHandler());
   blaze_util::SetLogHandler(std::move(default_handler));
 
-  BAZEL_LOG(INFO) << "Running (pid=" << GetProcessIdAsString() << ")";
-
   const string self_path = GetSelfPath(argv[0]);
 
   if (argc == 2 && strcmp(argv[1], "leaf") == 0) {
@@ -1559,6 +1564,8 @@ int Main(int argc, const char *const *argv, WorkspaceLayout *workspace_layout,
   // If client_debug was false, this is ignored, so it's accurate.
   BAZEL_LOG(INFO) << "Debug logging requested, sending all client log "
                      "statements to stderr";
+
+  BAZEL_LOG(INFO) << "Running (pid=" << GetProcessIdAsString() << ")";
 
   if (startup_options->unlimit_coredumps) {
     UnlimitCoredumps();

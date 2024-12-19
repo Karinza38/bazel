@@ -1,5 +1,4 @@
 load("@rules_java//java:defs.bzl", "java_library")
-load("//src:build_defs.bzl", "java_11_library")
 
 package(
     default_applicable_licenses = ["//:license"],
@@ -125,7 +124,7 @@ java_library(
     ],
 )
 
-java_11_library(
+java_library(
     name = "work_request_handlers",
     srcs = [
         "JsonWorkerMessageProcessor.java",
@@ -233,9 +232,7 @@ java_library(
 java_library(
     name = "worker_pool_impl",
     srcs = [
-        "SimpleWorkerPool.java",
         "WorkerPoolImpl.java",
-        "WorkerPoolImplLegacy.java",
     ],
     deps = [
         ":worker",
@@ -244,7 +241,6 @@ java_library(
         ":worker_pool",
         ":worker_pool_config",
         ":worker_process_status",
-        "//third_party:apache_commons_pool2",
         "//third_party:flogger",
         "//third_party:guava",
         "//third_party:jsr305",

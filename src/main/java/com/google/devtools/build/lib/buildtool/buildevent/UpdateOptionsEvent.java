@@ -1,4 +1,4 @@
-// Copyright 2023 The Bazel Authors. All rights reserved.
+// Copyright 2024 The Bazel Authors. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -11,15 +11,19 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
-package com.google.devtools.build.lib.actions;
+package com.google.devtools.build.lib.buildtool.buildevent;
 
-import com.google.devtools.build.lib.vfs.PathFragment;
-import java.util.function.UnaryOperator;
+import com.google.devtools.common.options.OptionsParsingResult;
 
-/**
- * A {@link CommandLineItem} that can apply the {@code stripPaths} map to optionally strip config
- * prefixes before returning output artifact exec paths.
- */
-public interface PathStrippable extends CommandLineItem {
-  String expand(UnaryOperator<PathFragment> stripPaths);
+/** Event that is fired when the options are updated. */
+public class UpdateOptionsEvent {
+  private final OptionsParsingResult options;
+
+  public UpdateOptionsEvent(OptionsParsingResult options) {
+    this.options = options;
+  }
+
+  public OptionsParsingResult getOptions() {
+    return options;
+  }
 }

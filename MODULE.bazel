@@ -33,7 +33,7 @@ bazel_dep(name = "rules_python", version = "0.40.0")
 bazel_dep(name = "rules_testing", version = "0.6.0")
 bazel_dep(name = "googletest", version = "1.15.2", repo_name = "com_google_googletest")
 bazel_dep(name = "with_cfg.bzl", version = "0.6.0")
-bazel_dep(name = "abseil-cpp", version = "20240722.0")
+bazel_dep(name = "abseil-cpp", version = "20240722.0.bcr.2")
 bazel_dep(name = "rules_shell", version = "0.2.0")
 
 # repo_name needs to be used, until WORKSPACE mode is to be supported in bazel_tools
@@ -64,7 +64,10 @@ single_version_override(
 single_version_override(
     module_name = "rules_graalvm",
     patch_strip = 1,
-    patches = ["//third_party:rules_graalvm_fix.patch"],
+    patches = [
+        "//third_party:rules_graalvm_fix.patch",
+        "//third_party:rules_graalvm_unicode.patch",
+    ],
 )
 
 local_path_override(
@@ -75,10 +78,12 @@ local_path_override(
 # The following Bazel modules are not direct dependencies for building Bazel,
 # but are required for visibility from DIST_ARCHIVE_REPOS in repositories.bzl
 bazel_dep(name = "apple_support", version = "1.15.1")
+bazel_dep(name = "rules_apple", version = "3.16.0")
 bazel_dep(name = "bazel_features", version = "1.21.0")
 bazel_dep(name = "c-ares", version = "1.15.0")
 bazel_dep(name = "rules_go", version = "0.48.0")
 bazel_dep(name = "rules_kotlin", version = "1.9.6")
+bazel_dep(name = "re2", version = "2024-07-02.bcr.1")
 
 # =========================================
 # Java dependencies
@@ -89,7 +94,7 @@ maven.install(
     artifacts = [
         # keep sorted
         "com.beust:jcommander:1.82",
-        "com.github.ben-manes.caffeine:caffeine:3.0.5",
+        "com.github.ben-manes.caffeine:caffeine:3.1.8",
         "com.github.stephenc.jcip:jcip-annotations:1.0-1",
         "com.google.api-client:google-api-client:1.35.2",
         "com.google.api-client:google-api-client-gson:1.35.2",
@@ -182,7 +187,6 @@ maven.install(
         "org.threeten:threeten-extra:1.5.0",
         "org.tukaani:xz:1.9",
         "org.yaml:snakeyaml:1.28",
-        "tools.profiler:async-profiler:3.0",
         # The following jars are for testing.
         # junit is not test only due to //src/java_tools/junitrunner/java/com/google/testing/junit/junit4:runner,
         # and hamcrest is a dependency of junit.
@@ -264,9 +268,9 @@ use_repo(
 
 python = use_extension("@rules_python//python/extensions:python.bzl", "python")
 python.toolchain(
+    ignore_root_user_error = True,
     is_default = True,
     python_version = "3.11",
-    ignore_root_user_error = True,
 )
 
 pip = use_extension("@rules_python//python/extensions:pip.bzl", "pip")
@@ -357,6 +361,15 @@ http_file(
     executable = True,
     integrity = "sha256-6+zYQLpH779mgihoF4zHIaFRBgk396xAbj0xvQFb3pQ=",
     urls = ["https://github.com/jqlang/jq/releases/download/jq-1.5/jq-win64.exe"],
+)
+
+async_profiler_repos = use_extension("//:repositories.bzl", "async_profiler_repos")
+use_repo(
+    async_profiler_repos,
+    "async_profiler",
+    "async_profiler_linux_arm64",
+    "async_profiler_linux_x64",
+    "async_profiler_macos",
 )
 
 # =========================================
